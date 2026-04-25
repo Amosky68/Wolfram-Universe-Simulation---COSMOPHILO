@@ -207,7 +207,7 @@ class Graph {
     expansion_cooldown++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
-    if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100*expSpeed + 0.2)) { 
+    if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
        univers.expandUniverse(); expansion_cooldown = 0;
     }
     
@@ -270,12 +270,12 @@ function setupUI() {
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
 
   createDiv('2. PARAMÈTRES PHYSIQUES').class('section-title').parent(panel);
-  checkTorus = createCheckbox(' Univers Torique', true).parent(panel);
-  checkExpansion = createCheckbox(' Expansion Spatiale', false).parent(panel);
+  checkTorus = createCheckbox(' Univers Torique', false).parent(panel);
+  checkExpansion = createCheckbox(' Expansion Spatiale', true).parent(panel);
 
   createDiv('3. CONTRÔLE DU TEMPS').class('section-title').parent(panel);
   selMode = createRadio('groupe_temps');
-  selMode.option('Auto'); selMode.option('Manuel'); selMode.selected('Auto');
+  selMode.option('Auto'); selMode.option('Manuel'); selMode.selected('Manuel');
   selMode.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
 
   // Mise à jour de l'affichage de la vitesse
