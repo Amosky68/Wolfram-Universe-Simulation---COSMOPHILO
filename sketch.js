@@ -314,14 +314,14 @@ function setupSettingsModal() {
 
   // Nouveaux paramètres cosmologiques
   sliderInitialN   = createParam('Taille Initiale (n)', 1, 50, 10, 1);
-  sliderExpSpeed    = createParam("Vitesse d'expansion", 0.2, 5, 1, 10);
+  sliderExpSpeed    = createParam("Vitesse d'expansion", 0.2, 5, 1, 0.1);
   
   // Paramètres physiques existants
-  sliderAnnihilation = createParam('Probabilité Annihilation', 0, 1, 0.9, 0.01);
-  sliderPhotonDest   = createParam('Disparition Photon', 0, 0.1, 0.015, 0.001);
-  sliderFluctuation  = createParam('Fluctuations (Vide)', 0, 0.001, 0.00005, 0.00001);
-  sliderDiffusion    = createParam('Diffusion Champs', 0, 1, 1, 0.1);
-  sliderDamping      = createParam('Damping', 0.5, 1, 0.97, 0.01);
+  sliderAnnihilation = createParam('Probabilité Annihilation des particules', 0, 1, 0.9, 0.01);
+  sliderPhotonDest   = createParam('Probabilité de disparition des photon (à chaque étape)', 0, 0.1, 0.015, 0.001);
+  sliderFluctuation  = createParam('Fluctuations du vide', 0, 0.001, 0.00005, 0.00001);
+  sliderDiffusion    = createParam('Diffusion Champs (contibution des voisins)', 0, 1, 1, 0.1);
+  sliderDamping      = createParam('Damping de la diffusion du champ de charge', 0.5, 1, 0.97, 0.01);
 }
 
 function initSimulation() {
