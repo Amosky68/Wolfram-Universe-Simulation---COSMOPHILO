@@ -336,10 +336,12 @@ function initSimulation() {
 function doStep() { if (ui_state === "running") univers.computeInterractions(); }
 
 function mouseDragged() {
+  if (event.target.tagName !== 'CANVAS') return;
   if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height && ui_state === "running") { offsetX += mouseX - pmouseX; offsetY += mouseY - pmouseY; }
 }
 
 function mouseWheel(event) {
+  if (event.target.tagName !== 'CANVAS') return;
   if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) { zoom *= exp(-event.delta * 0.001); return false; }
 }
 
