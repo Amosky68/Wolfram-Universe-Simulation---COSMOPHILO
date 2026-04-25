@@ -10,7 +10,7 @@ let btnStart, btnNext, btnSettings;
 // --- VARIABLES PARAMÈTRES AVANCÉS ---
 let modalOverlay;
 let sliderAnnihilation, sliderPhotonDest, sliderFluctuation, sliderDiffusion, sliderDamping;
-let sliderInitialN, sliderExpFreq; // Nouveaux sliders
+let sliderInitialN, sliderExpSpeed; // Nouveaux sliders
 
 class vector2 {
   constructor(x, y) { this.x = x; this.y = y; }
@@ -204,6 +204,13 @@ class Graph {
   }
   
   computeInterractions(){
+    expansion_cooldown++;
+    
+    let expSpeed = parseFloat(sliderExpSpeed.value());
+    if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100*expSpeed + 0.2)) { 
+       univers.expandUniverse(); expansion_cooldown = 0;
+    }
+    
     let probFluctu = parseFloat(sliderFluctuation.value());
     let probAnnihil = parseFloat(sliderAnnihilation.value());
     let probDestructPhot = parseFloat(sliderPhotonDest.value());
@@ -306,14 +313,14 @@ function setupSettingsModal() {
   }
 
   // Nouveaux paramètres cosmologiques
-  sliderInitialN   = createParam('Taille Initiale (n)', 10, 50, 15, 1);
-  sliderExpFreq    = createParam('Fréquence d\'Expansion (cycles)', 100, 2000, 500, 10);
+  sliderInitialN   = createParam('Taille Initiale (n)', 1, 50, 10, 1);
+  sliderExpSpeed    = createParam("Vitesse d'expansion", 0.2, 5, 1, 10);
   
   // Paramètres physiques existants
   sliderAnnihilation = createParam('Probabilité Annihilation', 0, 1, 0.9, 0.01);
   sliderPhotonDest   = createParam('Disparition Photon', 0, 0.1, 0.015, 0.001);
   sliderFluctuation  = createParam('Fluctuations (Vide)', 0, 0.001, 0.00005, 0.00001);
-  sliderDiffusion    = createParam('Diffusion Champs', 0, 2, 1, 0.1);
+  sliderDiffusion    = createParam('Diffusion Champs', 0, 1, 1, 0.1);
   sliderDamping      = createParam('Damping', 0.5, 1, 0.97, 0.01);
 }
 
@@ -329,11 +336,11 @@ function initSimulation() {
 function doStep() { if (ui_state === "running") univers.computeInterractions(); }
 
 function mouseDragged() {
-  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) { offsetX += mouseX - pmouseX; offsetY += mouseY - pmouseY; }
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height && ui_state === "running") { offsetX += mouseX - pmouseX; offsetY += mouseY - pmouseY; }
 }
 
 function mouseWheel(event) {
-  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) { zoom -= event.delta * 0.001; return false; }
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) { zoom *= exp(-event.delta * 0.001); return false; }
 }
 
 function draw() {
@@ -348,19 +355,16 @@ function draw() {
   let isPaused = modalOverlay.style('display') === 'flex';
 
   if (!isPaused) {
-    timestep++; expansion_cooldown++;
+    timestep++; 
     
     if (selMode.value() === 'Auto') {
       let speed = sliderSpeed.value();
       // Calcul pour transformer les FPS désirés en intervalle de frames (60fps de base)
       let interval = floor(60 / speed);
-      if (timestep % interval === 0) univers.computeInterractions();
-    }
-    
-    // Fréquence d'expansion basée sur le curseur
-    let expLimit = parseInt(sliderExpFreq.value());
-    if (checkExpansion.checked() && expansion_cooldown >= expLimit) { 
-      univers.expandUniverse(); expansion_cooldown = 0;
+      if (timestep % interval === 0) {
+        univers.computeInterractions(); 
+
+      }
     }
   }
 
