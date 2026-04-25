@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
   <style>
-    /* Palette de couleurs basée sur ton image de référence */
     :root {
       --bg-dark: #121420;
       --panel-bg: #1B2034;
@@ -15,111 +14,54 @@
     }
 
     body {
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
+      padding: 0; margin: 0; overflow: hidden;
       background: var(--bg-dark);
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       color: var(--text-main);
     }
 
-    /* Le panneau latéral */
     .ui-panel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 260px;
-      height: 100vh;
-      background: var(--panel-bg);
-      padding: 20px;
-      box-sizing: border-box;
-      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      overflow-y: auto;
+      position: absolute; top: 0; left: 0;
+      width: 260px; height: 100vh;
+      background: var(--panel-bg); padding: 20px;
+      box-sizing: border-box; box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+      display: flex; flex-direction: column; gap: 15px; overflow-y: auto;
+      z-index: 10;
     }
 
-    .ui-panel h2 {
-      margin: 0 0 10px 0;
-      font-weight: 600;
-      font-size: 22px;
-      color: white;
-    }
+    .ui-panel h2 { margin: 0 0 10px 0; font-weight: 600; font-size: 22px; color: white; }
+    .section-title { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-top: 15px; margin-bottom: 5px; }
 
-    /* Les titres de section */
-    .section-title {
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-top: 15px;
-      margin-bottom: 5px;
-    }
+    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #2A314A; border-radius: 2px; }
+    input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 0 10px rgba(0, 168, 255, 0.5); }
 
-    /* Sliders (Range inputs) ultra modernes */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      background: transparent;
-    }
-    input[type=range]:focus {
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 4px;
-      cursor: pointer;
-      background: #2A314A;
-      border-radius: 2px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: var(--accent-blue);
-      cursor: pointer;
-      -webkit-appearance: none;
-      margin-top: -6px;
-      box-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
-    }
-
-    /* Boutons */
-    .btn-primary {
-      background: var(--accent-blue);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    .btn-primary { background: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: background 0.2s; }
     .btn-primary:hover { background: var(--btn-hover); }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--text-main);
-      border: 1px solid #3A4460;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    .btn-secondary { background: transparent; color: var(--text-main); border: 1px solid #3A4460; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
     .btn-secondary:hover { background: #2A314A; }
 
-    /* Radios et Checkboxes */
-    label {
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      color: var(--text-main);
+    label { font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); }
+
+    /* --- NOUVEAU : Le style du panneau des paramètres (Modal) --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px);
+      display: none; justify-content: center; align-items: center; z-index: 100;
     }
+    .modal-content {
+      background: var(--panel-bg); padding: 30px; border-radius: 12px;
+      width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border: 1px solid #3A4460;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #3A4460; padding-bottom: 10px; }
+    .modal-header h3 { margin: 0; color: white; }
+    .close-btn { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
+    .close-btn:hover { color: white; }
+    .param-group { margin-bottom: 15px; }
+    .param-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: var(--text-main); }
+    .param-val { color: var(--accent-blue); font-weight: bold; }
   </style>
 </head>
 <body>
