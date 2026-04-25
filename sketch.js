@@ -1,17 +1,16 @@
 let univers;
-let vertex_color;
-let n = 15; // Taille de départ
+let n = 15; 
 let FieldTypes;
 
 // --- VARIABLES D'INTERFACE ---
-let ui_state = "config"; // "config" ou "running"
+let ui_state = "config"; 
 let selInitial, sliderSpeed, selMode, checkExpansion, checkTorus;
 let btnStart, btnNext, btnSettings;
 
 // --- VARIABLES PARAMÈTRES AVANCÉS ---
 let modalOverlay;
 let sliderAnnihilation, sliderPhotonDest, sliderFluctuation, sliderDiffusion, sliderDamping;
-let valAnnihilation, valPhotonDest, valFluctuation, valDiffusion, valDamping;
+let sliderInitialN, sliderExpFreq; // Nouveaux sliders
 
 class vector2 {
   constructor(x, y) { this.x = x; this.y = y; }
@@ -36,13 +35,13 @@ class Node {
 
 class Graph {
   constructor(isTorus) { this.nodes = []; this.isTorus = isTorus; }
-  addNode(id, x, y) { let n = new Node(id, x, y); this.nodes.push(n); return n; }
+  addNode(id, x, y) { let node = new Node(id, x, y); this.nodes.push(node); return node; }
   addEdge(id1, id2) {
     if (!id1 || !id2) return;
-    let n1 = this.nodes.find(n => n.id === id1); let n2 = this.nodes.find(n => n.id === id2);
+    let n1 = this.nodes.find(node => node.id === id1); let n2 = this.nodes.find(node => node.id === id2);
     if (n1 && n2 && !n1.edges.includes(n2)) { n1.edges.push(n2); n2.edges.push(n1); }
   }
-  getnode(id1) { return this.nodes.find(n => n.id === id1); }
+  getnode(id1) { return this.nodes.find(node => node.id === id1); }
   wrap(val, max) { return this.isTorus ? ((val % max) + max) % max : (val < 0 || val >= max ? -1 : val); }
   get_id_of_pos(x, y) {
     let wx = this.wrap(x, n); let wy = this.wrap(y, n);
@@ -162,7 +161,7 @@ class Graph {
     for (let p_pos of particules_pos) {
       let q_plus = p_pos.SourceFields["charge+"]; if (q_plus <= 0) continue; 
       let zone_recherche = [p_pos, ...p_pos.edges];
-      let p_neg = zone_recherche.find(n => n.SourceFields["charge-"] > 0);
+      let p_neg = zone_recherche.find(node => node.SourceFields["charge-"] > 0);
 
       if (p_neg) {
         let q_minus = p_neg.SourceFields["charge-"];
@@ -205,7 +204,6 @@ class Graph {
   }
   
   computeInterractions(){
-    // On lit les valeurs depuis nos curseurs (sliders) dans le panneau des paramètres
     let probFluctu = parseFloat(sliderFluctuation.value());
     let probAnnihil = parseFloat(sliderAnnihilation.value());
     let probDestructPhot = parseFloat(sliderPhotonDest.value());
@@ -252,7 +250,7 @@ function setup() {
   createCanvas(windowWidth - 260, windowHeight).position(260, 0);
   FieldTypes = { "photon": color(180, 180, 0), "charge+": color(225, 100, 100), "charge-": color(100, 225, 100) };
   setupUI();
-  setupSettingsModal(); // Prépare le panneau flottant
+  setupSettingsModal(); 
 }
 
 function setupUI() {
@@ -273,8 +271,10 @@ function setupUI() {
   selMode.option('Auto'); selMode.option('Manuel'); selMode.selected('Auto');
   selMode.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
 
-  createDiv('<small style="color: #8A94A6;">Délai en mode auto :</small>').parent(panel);
-  sliderSpeed = createSlider(1, 60, 5, 1).parent(panel);
+  // Mise à jour de l'affichage de la vitesse
+  let speedLabel = createDiv('<small style="color: #8A94A6;">Vitesse (cycles/sec) : <span id="speedVal">12</span></small>').parent(panel);
+  sliderSpeed = createSlider(1, 60, 12, 1).parent(panel);
+  sliderSpeed.input(() => select('#speedVal').html(sliderSpeed.value()));
 
   btnStart = createButton('Démarrer / Reset').parent(panel).class('btn-primary').style('margin-top', '15px');
   btnStart.mousePressed(initSimulation);
@@ -282,12 +282,10 @@ function setupUI() {
   btnNext = createButton('Étape Suivante').parent(panel).class('btn-secondary');
   btnNext.mousePressed(doStep);
 
-  // Le bouton pour ouvrir les paramètres avancés
   btnSettings = createButton('⚙️ Paramètres Avancés').parent(panel).class('btn-secondary').style('margin-top', '20px');
   btnSettings.mousePressed(() => modalOverlay.style('display', 'flex'));
 }
 
-// Fonction pour créer le panneau HTML dynamique des paramètres
 function setupSettingsModal() {
   modalOverlay = createDiv('').class('modal-overlay');
   let modalContent = createDiv('').class('modal-content').parent(modalOverlay);
@@ -297,27 +295,30 @@ function setupSettingsModal() {
   let closeBtn = createButton('×').class('close-btn').parent(header);
   closeBtn.mousePressed(() => modalOverlay.style('display', 'none'));
 
-  // Fonction utilitaire pour créer une ligne de paramètre
   function createParam(name, min, max, val, step) {
     let group = createDiv('').class('param-group').parent(modalContent);
     let labelDiv = createDiv('').class('param-label').parent(group);
     createSpan(name).parent(labelDiv);
     let valSpan = createSpan(val).class('param-val').parent(labelDiv);
     let slider = createSlider(min, max, val, step).parent(group);
-    slider.input(() => valSpan.html(slider.value())); // Met à jour le texte en glissant
+    slider.input(() => valSpan.html(slider.value())); 
     return slider;
   }
 
-  // Création des curseurs avec les valeurs par défaut que l'on utilisait
-  sliderAnnihilation = createParam('Probabilité Annihilation -> Photon', 0, 1, 0.9, 0.01);
-  sliderPhotonDest   = createParam('Probabilité Disparition Photon', 0, 0.1, 0.015, 0.001);
-  sliderFluctuation  = createParam('Fluctuations Quantiques (Création)', 0, 0.001, 0.00005, 0.00001);
-  sliderDiffusion    = createParam('Facteur de Diffusion (Champs)', 0, 2, 1, 0.1);
-  sliderDamping      = createParam('Amortissement du Champ (Damping)', 0.5, 1, 0.97, 0.01);
+  // Nouveaux paramètres cosmologiques
+  sliderInitialN   = createParam('Taille Initiale (n)', 10, 50, 15, 1);
+  sliderExpFreq    = createParam('Fréquence d\'Expansion (cycles)', 100, 2000, 500, 10);
+  
+  // Paramètres physiques existants
+  sliderAnnihilation = createParam('Probabilité Annihilation', 0, 1, 0.9, 0.01);
+  sliderPhotonDest   = createParam('Disparition Photon', 0, 0.1, 0.015, 0.001);
+  sliderFluctuation  = createParam('Fluctuations (Vide)', 0, 0.001, 0.00005, 0.00001);
+  sliderDiffusion    = createParam('Diffusion Champs', 0, 2, 1, 0.1);
+  sliderDamping      = createParam('Damping', 0.5, 1, 0.97, 0.01);
 }
 
 function initSimulation() {
-  n = 15;
+  n = parseInt(sliderInitialN.value()); // On utilise la valeur du slider
   univers = new Graph(checkTorus.checked());
   univers.Setup();
   if (selInitial.value() === 'Big Bang') univers.make_big_bang();
@@ -343,15 +344,24 @@ function draw() {
     return;
   }
 
-  timestep++; expansion_cooldown++;
-  
-  if (selMode.value() === 'Auto') {
-    let delay = sliderSpeed.value();
-    if (timestep % delay === 0) univers.computeInterractions();
-  }
-  
-  if (checkExpansion.checked() && expansion_cooldown >= (n * n * n / 500)) { 
-    univers.expandUniverse(); expansion_cooldown = 0;
+  // --- GESTION DU MODE PAUSE (MODAL) ---
+  let isPaused = modalOverlay.style('display') === 'flex';
+
+  if (!isPaused) {
+    timestep++; expansion_cooldown++;
+    
+    if (selMode.value() === 'Auto') {
+      let speed = sliderSpeed.value();
+      // Calcul pour transformer les FPS désirés en intervalle de frames (60fps de base)
+      let interval = floor(60 / speed);
+      if (timestep % interval === 0) univers.computeInterractions();
+    }
+    
+    // Fréquence d'expansion basée sur le curseur
+    let expLimit = parseInt(sliderExpFreq.value());
+    if (checkExpansion.checked() && expansion_cooldown >= expLimit) { 
+      univers.expandUniverse(); expansion_cooldown = 0;
+    }
   }
 
   push();
@@ -371,6 +381,6 @@ function draw_UI() {
   text("Âge de l'univers (Frames) : " + timestep, 20, 20);
   text("Taille du maillage : " + n + "x" + n, 20, 40);
   text("FPS : " + currentFPS, 20, 60);
-  let nbParticules = univers.nodes.filter(n => n.SourceFields["charge+"] !== 0 || n.SourceFields["charge-"] !== 0 || n.SourceFields["photon"] !== 0).length;
+  let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
   text("Particules : " + nbParticules, 20, 80);
 }
