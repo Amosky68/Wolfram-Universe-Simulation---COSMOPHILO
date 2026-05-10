@@ -395,7 +395,7 @@ function draw_UI() {
   fill(255); noStroke(); textSize(14); textAlign(LEFT, TOP);
   frameRateDelay = 0.95 * frameRateDelay + frameRate() * 0.05;
   let currentFPS = Math.round(frameRateDelay);
-  text("Âge de l'univers (étapes) : " + timestep, 20, 20);
+  text("Âge de l'univers (étapes) : " + physicsSteps, 20, 20);
   text("Taille du maillage : " + n + "x" + n, 20, 40);
   text("FPS : " + currentFPS, 20, 60);
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
