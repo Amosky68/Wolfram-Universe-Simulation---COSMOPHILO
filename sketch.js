@@ -1,6 +1,8 @@
 let univers;
 let n = 15; 
 let FieldTypes;
+let showHelp = true;
+let physicsSteps = 0;
 
 // --- VARIABLES D'INTERFACE ---
 let ui_state = "config"; 
@@ -205,6 +207,7 @@ class Graph {
   
   computeInterractions(){
     expansion_cooldown++;
+    physicsSteps++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
     if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
@@ -247,6 +250,12 @@ class Graph {
       if (hasSource) { stroke(255); strokeWeight(1); circle(node.x, node.y, 8); } 
       else { noStroke(); circle(node.x, node.y, 8); }
     }
+  }
+}
+
+function keyPressed() {
+  if (key === 'h' || key === 'H') {
+    showHelp = !showHelp; // Inverse la valeur (Vrai devient Faux, Faux devient Vrai)
   }
 }
 
@@ -331,6 +340,7 @@ function initSimulation() {
   if (selInitial.value() === 'Big Bang') univers.make_big_bang();
   ui_state = "running"; timestep = 0; expansion_cooldown = 0;
   offsetX = 0; offsetY = 0; zoom = min(width, height) / (n * 15); 
+  physicsSteps=0;
 }
 
 function doStep() { if (ui_state === "running") univers.computeInterractions(); }
@@ -378,15 +388,60 @@ function draw() {
   pop();
 
   draw_UI();
+  drawHelpBox();
 }
 
 function draw_UI() {
   fill(255); noStroke(); textSize(14); textAlign(LEFT, TOP);
   frameRateDelay = 0.95 * frameRateDelay + frameRate() * 0.05;
   let currentFPS = Math.round(frameRateDelay);
-  text("Âge de l'univers (Frames) : " + timestep, 20, 20);
+  text("Âge de l'univers (étapes) : " + timestep, 20, 20);
   text("Taille du maillage : " + n + "x" + n, 20, 40);
   text("FPS : " + currentFPS, 20, 60);
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
   text("Particules : " + nbParticules, 20, 80);
+}
+
+
+function drawHelpBox() {
+  // Si l'aide est masquée, on affiche juste un petit rappel en bas
+  if (!showHelp) {
+    fill(255, 150); 
+    noStroke();
+    textSize(12);
+    textAlign(LEFT, BOTTOM);
+    text("[H] Afficher l'aide", 10, height - 10);
+    return; 
+  }
+
+  // Paramètres de la boîte
+  let boxWidth = 320;
+  let boxHeight = 150;
+  let padding = 15;
+  // Positionnée en haut à droite
+  let x = width - boxWidth - 10; 
+  let y = 10;
+
+
+  fill(0, 0, 0, 200); 
+  stroke(100);
+  strokeWeight(1);
+  rect(x, y, boxWidth, boxHeight, 10); 
+
+  fill(255);
+  noStroke();
+  textSize(16);
+  textAlign(LEFT, TOP);
+  text("💡 Mode d'emploi", x + padding, y + padding);
+
+  textSize(13);
+  let textY = y + padding + 30;
+  let interligne = 20;
+
+  text("• Vert / Rouge : Particules de matière", x + padding, textY);
+  text("• Gris : Le vide quantique (espace)", x + padding, textY + interligne * 1);
+  text("• Observez les particules suivre le champ", x + padding, textY + interligne * 2);
+  
+  fill(255, 255, 0); 
+  text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 4);
 }
