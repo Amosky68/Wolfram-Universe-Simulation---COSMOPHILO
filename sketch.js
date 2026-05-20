@@ -438,9 +438,12 @@ function drawHelpBox() {
   let textY = y + padding + 30;
   let interligne = 20;
 
-  text("• Vert / Rouge : Particules de matière", x + padding, textY);
-  text("• Gris : Le vide quantique (espace)", x + padding, textY + interligne * 1);
-  text("• Observez les particules suivre le champ", x + padding, textY + interligne * 2);
+  text("LÉGENDE VISUELLE :", x + padding, textY);
+  text("🟢 Vert  : champ positif", x + padding, textY + interligne * 1);
+  text("🔴 Rouge : champ négatif", x + padding, textY + interligne * 2);
+  text("🟡 Jaune : Photon", x + padding, textY + interligne * 3);
+  text("⚪ Bordure Blanche : Source (particule)", x + padding, textY + interligne * 4);
+  text("🌑 Nœud Gris : Vide spatial", x + padding, textY + interligne * 5);
   
   fill(255, 255, 0); 
   text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 4);
