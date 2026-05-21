@@ -320,7 +320,7 @@ class Graph {
     // }
 
     let n = this.nodes.length;
-    let overExpand = min(10, expansion_cooldown / (0.01 * n * n / expSpeed)); // nombre de fois qu'il faut expand
+    let overExpand = min(10, expansion_cooldown / (0.01 * n / expSpeed)); // nombre de fois qu'il faut expand
     if (checkExpansion.checked() && overExpand > 0) { 
        for (let i = 0; i < overExpand; i++) {
          this.expandOrganically(); 
@@ -383,6 +383,8 @@ function setup() {
   FieldTypes = { "photon": color(180, 180, 0), "charge+": color(225, 100, 100), "charge-": color(100, 225, 100) };
   setupUI();
   setupSettingsModal(); 
+
+  applyPreset();
 }
 
 function setupUI() {
@@ -509,7 +511,6 @@ function setupSettingsModal() {
 }
 
 function initSimulation() {
-  applyPreset();
   n = parseInt(sliderInitialN.value()); // On utilise la valeur du slider
   univers = new Graph(checkTorus.checked());
   univers.Setup();
