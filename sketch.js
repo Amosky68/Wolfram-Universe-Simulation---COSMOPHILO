@@ -319,7 +319,7 @@ class Graph {
     //    univers.expandUniverse(); expansion_cooldown = 0;
     // }
 
-    let overExpand = max(10, expansion_cooldown / (0.7 / expSpeed * n)); // nombre de fois qu'il faut expand
+    let overExpand = max(10, expansion_cooldown / (0.5 / expSpeed * n * n)); // nombre de fois qu'il faut expand
     if (checkExpansion.checked() && overExpand > 0) { 
        for (let i = 0; i < overExpand; i++) {
          this.expandOrganically(); 
