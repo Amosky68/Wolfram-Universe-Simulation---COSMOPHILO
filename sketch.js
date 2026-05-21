@@ -340,9 +340,10 @@ class Graph {
         
         node.SourceFields["charge+"] += 1;
         let isAsymmetry = (selInitial.value() === 'Asymétrie Baryonique');
-        if (isAsymmetry && Math.random() > 0.01) {
-          voisin.SourceFields["charge-"] += 1;
-        } 
+        if (isAsymmetry && Math.random() < 0.01) {
+        } else {
+            voisin.SourceFields["charge-"] += 1;
+        }
       }
     }
   }
@@ -356,9 +357,9 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.0007; 
+       let facteur = 0.0035; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
-       cout_expansion = (0.005 / expSpeed) * nb_nodes;
+       cout_expansion = (0.005 / expSpeed);
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
