@@ -359,7 +359,7 @@ class Graph {
     if (selInitial.value() === 'Big Rip') {
        let facteur = 0.0035; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
-       cout_expansion = (0.005 / expSpeed);
+       cout_expansion = expSpeed;
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
