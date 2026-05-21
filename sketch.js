@@ -149,8 +149,8 @@ class Graph {
   expandUniverse() {
     let old_n = n; n += 1;
     for (let i = 0; i < n; i++) {
-      if (i < old_n) this.addNode(`${i},${old_n}`, i * 10, old_n * 10);
-      else for (let j = 0; j < n; j++) this.addNode(`${old_n},${j}`, old_n * 10, j * 10);
+      if (i < old_n) this.addNode(`${i},${old_n}`, i * 20, old_n * 20);
+      else for (let j = 0; j < n; j++) this.addNode(`${old_n},${j}`, old_n * 20, j * 20);
     }
     this.buildEdges();
   }
@@ -340,7 +340,7 @@ class Graph {
         
         node.SourceFields["charge+"] += 1;
         let isAsymmetry = (selInitial.value() === 'Asymétrie Baryonique');
-        if (isAsymmetry && Math.random() < 0.01) {
+        if (isAsymmetry && Math.random() < 0.02) {
         } else {
             voisin.SourceFields["charge-"] += 1;
         }
@@ -539,8 +539,8 @@ function applyPreset() {
     sliderDamping.value(0.80); 
   }
   else if (choix === 'Univers Torique') {
-    sliderInitialN.value(12);
-    checkExpansion.checked(true); 
+    sliderInitialN.value(15);
+    checkExpansion.checked(false); 
     checkTorus.checked(true);     
     sliderFluctuation.value(0.005); 
     sliderDamping.value(0.90);
