@@ -77,9 +77,10 @@ class Graph {
         let dy = n1.y - n2.y;
         let dist = sqrt(dx*dx + dy*dy); 
 
-        // Répulsion active seulement si les nœuds sont très proches
         if (dist > 0 && dist < 100) { 
-          let force = 100 / (dist * dist); 
+          let safeDist = max(dist, 5); 
+          let force = 100 / (safeDist * safeDist + 9); 
+          
           n1.vx += (dx / dist) * force;
           n1.vy += (dy / dist) * force;
           n2.vx -= (dx / dist) * force;
@@ -96,7 +97,7 @@ class Graph {
         let dist = sqrt(dx*dx + dy*dy);
 
         if (dist > 0) {
-          let longueurRepos = 25; 
+          let longueurRepos = 20; 
           let forceRessort = 0.05; 
           
           let force = (dist - longueurRepos) * forceRessort; 
@@ -129,18 +130,28 @@ class Graph {
   }
 
   expandOrganically() {
-    // noeuds à la frontière (pour ne pas ajouter des noeuds au milieu du graph, ce qui rendrait la simulation incompréhensible a regarder
     let bords = this.nodes.filter(n => n.edges.length < 4);
-    if (bords.length === 0) return; // si l'univers est torique
+    if (bords.length === 0) return; 
 
-    //noeud aléatoire
     let parent = bords[Math.floor(Math.random() * bords.length)];
 
     if (!this.organicCounter) this.organicCounter = 0;
     this.organicCounter++;
     let newId = "org_" + this.organicCounter;
     
-    let newNode = this.addNode(newId, parent.x + random(-10, 10), parent.y + random(-10, 10));
+    let centreX = n * 5; 
+    let centreY = n * 5;
+    let dirX = parent.x - centreX;
+    let dirY = parent.y - centreY;
+    let distCentre = sqrt(dirX*dirX + dirY*dirY);
+    
+    // Sécurité si le nœud est pile au centre
+    if (distCentre === 0) { dirX = 1; dirY = 0; distCentre = 1; }
+
+    let spawnX = parent.x + (dirX / distCentre) * 25 + random(-2, 2);
+    let spawnY = parent.y + (dirY / distCentre) * 25 + random(-2, 2);
+
+    let newNode = this.addNode(newId, spawnX, spawnY);
 
     this.addEdge(newId, parent.id);
 
