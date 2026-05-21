@@ -70,7 +70,6 @@ class Graph {
     let darkEnergy = 1;
     if (selInitial.value() === 'Big Rip') {
       let facteur = 0.004; 
-      // L'énergie sombre au cube : calme, puis explosion foudroyante
       darkEnergy = 1 + Math.pow(this.nodes.length * facteur, 3);
     }
 
@@ -106,10 +105,8 @@ class Graph {
         let realDist = sqrt(dx*dx + dy*dy); 
 
         if (selInitial.value() === 'Big Rip') {
-          // Le centre est à peine plus fragile (0.8) pour déclencher des failles internes
           let stressLocal = (node.edges.length === 4 && connected.edges.length === 4) ? 0.8 : 1.0;
           
-          // Le seuil reste FIXE. C'est la force de l'énergie sombre qui va le briser.
           let seuilDechirure = 100 * stressLocal / (1 + this.nodes.length / 1000);
 
           if (realDist > seuilDechirure) {
@@ -122,8 +119,6 @@ class Graph {
 
         if (realDist > 0) {
           let longueurRepos = 12; 
-          // ON REMET LE RESSORT SOLIDE (0.05) ! 
-          // La toile reste sous haute tension jusqu'à ce qu'elle claque d'un coup.
           let forceRessort = 0.05; 
           let force = (realDist - longueurRepos) * forceRessort; 
           node.vx += (dx / realDist) * force;
@@ -156,11 +151,9 @@ class Graph {
   }
 
   expandOrganically() {
-    // 1. Trouver les bords
     let bords = this.nodes.filter(n => n.edges.length < 4);
     if (bords.length === 0) return false; 
 
-    // 2. Filtrer pour ne garder QUE ceux qui ont un emplacement logique vide
     let parents_valides = bords.filter(p => {
       let coords = p.id.split(',');
       let px = parseInt(coords[0]);
@@ -171,7 +164,6 @@ class Graph {
 
     if (parents_valides.length === 0) return false; // Tous les bords sont bloqués
 
-    // 3. Choix sécurisé
     let parent = parents_valides[Math.floor(Math.random() * parents_valides.length)];
     let coords = parent.id.split(',');
     let px = parseInt(coords[0]);
@@ -203,7 +195,7 @@ class Graph {
       }
     }
     
-    return true; // Succès !
+    return true; 
   }
 
   make_big_bang() {
@@ -361,8 +353,6 @@ class Graph {
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 1.7));
        cout_expansion = 1 / expSpeed;
     } else {
-       // NOUVEAU : La Racine Carrée !
-       // L'expansion visuelle restera constante peu importe la taille de l'univers.
        cout_expansion = (0.2 / expSpeed) * Math.sqrt(nb_nodes); 
     }
     
@@ -374,18 +364,15 @@ class Graph {
          expansion_cooldown = 0; 
        } 
        else { 
-         // Limite rehaussée à 20 pour un visuel fluide, et 60 pour le Big Rip
          let limite_ajout = (selInitial.value() === 'Big Rip') ? 60 : 20; 
          let expansions_a_faire = min(limite_ajout, overExpand);
          let ajouts_reels = 0;
          
          for (let i = 0; i < expansions_a_faire; i++) {
-           // On ajoute au compteur UNIQUEMENT si la création a réussi
            if (this.expandOrganically()) {
                ajouts_reels++;
            }
          }
-         // On ne déduit du budget que les nœuds réels
          expansion_cooldown -= (ajouts_reels * cout_expansion);
        }
     }
@@ -466,7 +453,7 @@ function setupUI() {
   selInitial.selected('Big Bang');
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
   
-  // NOUVEAU : On écoute le changement de sélection pour appliquer le preset
+
   selInitial.changed(applyPreset);
 
   
@@ -475,7 +462,7 @@ function setupUI() {
   selMode.option('Auto'); selMode.option('Manuel'); selMode.selected('Manuel');
   selMode.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
 
-  // Mise à jour de l'affichage de la vitesse
+
   let speedLabel = createDiv('<small style="color: #8A94A6;">Vitesse (cycles/sec) : <span id="speedVal">12</span></small>').parent(panel);
   sliderSpeed = createSlider(1, 60, 12, 1).parent(panel);
   sliderSpeed.input(() => select('#speedVal').html(sliderSpeed.value()));
@@ -587,12 +574,10 @@ function setupSettingsModal() {
 
   checkExpansion = createCheckbox(' Activer l\'expansion Spatiale', true).parent(modalContent).style('color', 'white').style('margin-bottom', '10px');
   checkTorus = createCheckbox(' Univers Torique (Bords connectés)', false).parent(modalContent).style('color', 'white').style('margin-bottom', '15px');
-
-  // Nouveaux paramètres cosmologiques
+  
   sliderInitialN   = createParam('Taille Initiale (n)', 1, 50, 10, 1);
   sliderExpSpeed    = createParam("Vitesse d'expansion", 0.2, 5, 1, 0.1);
   
-  // Paramètres physiques existants
   sliderAnnihilation = createParam('Probabilité Annihilation des particules', 0, 1, 0.9, 0.01);
   sliderPhotonDest   = createParam('Probabilité de disparition des photon (à chaque étape)', 0, 0.1, 0.015, 0.001);
   sliderFluctuation  = createParam('Fluctuations du vide', 0, 0.001, 0.00005, 0.00001);
@@ -601,7 +586,7 @@ function setupSettingsModal() {
 }
 
 function initSimulation() {
-  n = parseInt(sliderInitialN.value()); // On utilise la valeur du slider
+  n = parseInt(sliderInitialN.value()); 
   univers = new Graph(checkTorus.checked());
   univers.Setup();
   if (selInitial.value() === 'Big Bang' || selInitial.value() === 'Mort Thermique') {
@@ -636,7 +621,7 @@ function draw() {
     univers.updateVisualPhysics(); // met a jour la position des noeuds 
   } 
 
-  // --- GESTION DU MODE PAUSE (MODAL) ---
+
   let isPaused = modalOverlay.style('display') === 'flex';
 
   if (!isPaused) {
