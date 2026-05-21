@@ -110,7 +110,7 @@ class Graph {
           let stressLocal = (node.edges.length === 4 && connected.edges.length === 4) ? 0.8 : 1.0;
           
           // Le seuil reste FIXE. C'est la force de l'énergie sombre qui va le briser.
-          let seuilDechirure = 120 * stressLocal;
+          let seuilDechirure = 100 * stressLocal;
 
           if (realDist > seuilDechirure) {
             node.edges.splice(e, 1);
@@ -351,7 +351,7 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.008; 
+       let facteur = 0.0003; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
        cout_expansion = (0.005 / expSpeed) * nb_nodes;
     } else {
