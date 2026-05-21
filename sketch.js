@@ -319,6 +319,7 @@ class Graph {
     //    univers.expandUniverse(); expansion_cooldown = 0;
     // }
 
+    let n = this.nodes.length;
     let overExpand = max(10, expansion_cooldown / (0.5 / expSpeed * n * n)); // nombre de fois qu'il faut expand
     if (checkExpansion.checked() && overExpand > 0) { 
        for (let i = 0; i < overExpand; i++) {
@@ -574,7 +575,7 @@ function draw_UI() {
   frameRateDelay = 0.95 * frameRateDelay + frameRate() * 0.05;
   let currentFPS = Math.round(frameRateDelay);
   text("Âge de l'univers (étapes) : " + physicsSteps, 20, 20);
-  text("Taille du maillage : " + n + "x" + n, 20, 40);
+  text("Nombre de noeuds : " + this.nodes.length, 20, 40);
   text("FPS : " + currentFPS, 20, 60);
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
   text("Particules : " + nbParticules, 20, 80);
