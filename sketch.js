@@ -377,6 +377,9 @@ function setupSettingsModal() {
     return slider;
   }
 
+  checkExpansion = createCheckbox(' Activer l\'expansion Spatiale', true).parent(modalContent).style('color', 'white').style('margin-bottom', '10px');
+  checkTorus = createCheckbox(' Univers Torique (Bords connectés)', false).parent(modalContent).style('color', 'white').style('margin-bottom', '15px');
+
   // Nouveaux paramètres cosmologiques
   sliderInitialN   = createParam('Taille Initiale (n)', 1, 50, 10, 1);
   sliderExpSpeed    = createParam("Vitesse d'expansion", 0.2, 5, 1, 0.1);
@@ -504,5 +507,5 @@ function drawHelpBox() {
   text("⚫ Nœud Gris : Vide spatial", x + padding, textY + interligne * 5);
   
   fill(255, 255, 0); 
-  text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 4);
+  text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 7);
 }
