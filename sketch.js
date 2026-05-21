@@ -67,15 +67,13 @@ class Graph {
   }
 
   updateVisualPhysics() {
-    // Répulsion
-
-    // 1. Calcul de l'énergie sombre (seulement pour le Big Rip)
     let darkEnergy = 1;
     if (selInitial.value() === 'Big Rip') {
-      darkEnergy = 1 + physicsSteps * 0.01; 
+      // La répulsion devient colossale très rapidement
+      darkEnergy = 1 + Math.pow(physicsSteps * 0.01, 2);
     }
 
-    // 2. Répulsion
+    // Répulsion 
     for (let i = 0; i < this.nodes.length; i++) {
       for (let j = i + 1; j < this.nodes.length; j++) {
         let n1 = this.nodes[i];
@@ -87,7 +85,6 @@ class Graph {
 
         if (dist > 0 && dist < 100) { 
           let safeDist = max(dist, 5); 
-          // On applique l'énergie sombre 
           let force = (100 * darkEnergy) / (safeDist * safeDist + 9); 
           
           n1.vx += (dx / dist) * force;
@@ -98,7 +95,7 @@ class Graph {
       }
     }
 
-    // Attraction et Déchirure (Big Rip)
+    // Attraction et Déchirure de l'espace
     for (let node of this.nodes) {
       for (let e = node.edges.length - 1; e >= 0; e--) {
         let connected = node.edges[e];
@@ -106,12 +103,11 @@ class Graph {
         let dy = connected.y - node.y;
         let dist = sqrt(dx*dx + dy*dy);
 
-        // déchirure si on dépasse un seuil
         if (selInitial.value() === 'Big Rip' && dist > 75) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
-          continue; // L'arête n'existant plus, on passe au voisin suivant
+          continue; // On passe à l'arête suivante
         }
 
         if (dist > 0) {
@@ -330,13 +326,14 @@ class Graph {
     physicsSteps++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
-
+    
     if (selInitial.value() === 'Big Rip') {
-       expSpeed *= (1 + physicsSteps * 0.005); // La vitesse augmente continuellement
+       // L'accélération s'emballe de manière exponentielle avec le temps
+       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
     }
 
     let nb_nodes = this.nodes.length;
-    let cout_expansion = (0.5 / expSpeed) * nb_nodes * nb_nodes; 
+    let cout_expansion = (5 / expSpeed) * nb_nodes; 
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
 
     if (checkExpansion.checked() && overExpand > 0) { 
@@ -586,7 +583,9 @@ function draw() {
     return;
   }
 
-  univers.updateVisualPhysics(); // met a jour la position des noeuds 
+  if (!univers.isTorus) {
+    univers.updateVisualPhysics(); // met a jour la position des noeuds 
+  } 
 
   // --- GESTION DU MODE PAUSE (MODAL) ---
   let isPaused = modalOverlay.style('display') === 'flex';
