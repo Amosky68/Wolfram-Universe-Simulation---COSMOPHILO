@@ -320,7 +320,7 @@ class Graph {
     // }
 
     let n = this.nodes.length;
-    let overExpand = max(10, expansion_cooldown / (0.5 / expSpeed * n * n)); // nombre de fois qu'il faut expand
+    let overExpand = max(10, expansion_cooldown / (10 / expSpeed * n * n)); // nombre de fois qu'il faut expand
     if (checkExpansion.checked() && overExpand > 0) { 
        for (let i = 0; i < overExpand; i++) {
          this.expandOrganically(); 
@@ -509,6 +509,7 @@ function setupSettingsModal() {
 }
 
 function initSimulation() {
+  applyPreset();
   n = parseInt(sliderInitialN.value()); // On utilise la valeur du slider
   univers = new Graph(checkTorus.checked());
   univers.Setup();
