@@ -97,7 +97,7 @@ class Graph {
         let dist = sqrt(dx*dx + dy*dy);
 
         if (dist > 0) {
-          let longueurRepos = 18; 
+          let longueurRepos = 12; 
           let forceRessort = 0.05; 
           
           let force = (dist - longueurRepos) * forceRessort; 
@@ -319,7 +319,7 @@ class Graph {
     //    univers.expandUniverse(); expansion_cooldown = 0;
     // }
     
-    if (checkExpansion.checked() && expansion_cooldown >= (5 / expSpeed)) { 
+    if (checkExpansion.checked() && expansion_cooldown >= (0.1 / expSpeed * n)) { 
        this.expandOrganically(); 
        expansion_cooldown = 0;
     }
