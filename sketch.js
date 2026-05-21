@@ -105,20 +105,26 @@ class Graph {
         
         let realDist = sqrt(dx*dx + dy*dy); 
 
-        // VOTRE IDÉE CORRIGÉE : Le seuil baisse à mesure que l'univers se remplit !
-        // Il passe de 120 pixels (solide) à presque 0 (ultra fragile)
-        let seuilDechirure = 120 / (1 + this.nodes.length * 0.001);
+        if (selInitial.value() === 'Big Rip') {
+          // L'ASTUCE : Si la liaison est au centre (4 connexions de chaque côté)
+          // on divise le seuil de résistance par 2. Le centre devient ultra fragile !
+          let stressLocal = (node.edges.length === 4 && connected.edges.length === 4) ? 0.5 : 1.0;
+          
+          // Le seuil chute beaucoup plus vite qu'avant (* 0.003)
+          let seuilDechirure = (120 * stressLocal) / (1 + this.nodes.length * 0.003);
 
-        if (selInitial.value() === 'Big Rip' && realDist > seuilDechirure) {
-          node.edges.splice(e, 1);
-          let indexReverse = connected.edges.indexOf(node);
-          if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
-          continue; 
+          if (realDist > seuilDechirure) {
+            node.edges.splice(e, 1);
+            let indexReverse = connected.edges.indexOf(node);
+            if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
+            continue; 
+          }
         }
 
         if (realDist > 0) {
           let longueurRepos = 12; 
-          let forceRessort = 0.05; 
+          // En Big Rip, le tissu spatial "ramollit" et perd son élasticité face à l'énergie sombre
+          let forceRessort = (selInitial.value() === 'Big Rip') ? 0.01 : 0.05; 
           let force = (realDist - longueurRepos) * forceRessort; 
           node.vx += (dx / realDist) * force;
           node.vy += (dy / realDist) * force;
@@ -346,7 +352,7 @@ class Graph {
     if (selInitial.value() === 'Big Rip') {
        let facteur = 0.005; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
-       cout_expansion = (0.05 / expSpeed) * nb_nodes;
+       cout_expansion = (0.005 / expSpeed) * nb_nodes;
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
