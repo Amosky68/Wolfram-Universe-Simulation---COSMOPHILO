@@ -66,8 +66,8 @@ class Graph {
     }
   }
 
-  updateVisualPhysics() { // Graphe qui bouge 
-    // Répulsion 
+  updateVisualPhysics() {
+    // Répulsion
     for (let i = 0; i < this.nodes.length; i++) {
       for (let j = i + 1; j < this.nodes.length; j++) {
         let n1 = this.nodes[i];
@@ -77,8 +77,9 @@ class Graph {
         let dy = n1.y - n2.y;
         let dist = sqrt(dx*dx + dy*dy); 
 
-        if (dist > 0 && dist < 200) { 
-          let force = 200 / (dist * dist); 
+        // Répulsion active seulement si les nœuds sont très proches
+        if (dist > 0 && dist < 100) { 
+          let force = 100 / (dist * dist); 
           n1.vx += (dx / dist) * force;
           n1.vy += (dy / dist) * force;
           n2.vx -= (dx / dist) * force;
@@ -87,7 +88,7 @@ class Graph {
       }
     }
 
-    //  Attraction 
+    // Attraction 
     for (let node of this.nodes) {
       for (let connected of node.edges) {
         let dx = connected.x - node.x;
@@ -95,8 +96,9 @@ class Graph {
         let dist = sqrt(dx*dx + dy*dy);
 
         if (dist > 0) {
-          let longueurRepos = 50; 
+          let longueurRepos = 25; 
           let forceRessort = 0.05; 
+          
           let force = (dist - longueurRepos) * forceRessort; 
           node.vx += (dx / dist) * force;
           node.vy += (dy / dist) * force;
@@ -111,13 +113,12 @@ class Graph {
       node.vx += (centreX - node.x) * 0.001;
       node.vy += (centreY - node.y) * 0.001;
       
-      node.vx *= 0.85; 
+      node.vx *= 0.85; // Friction
       node.vy *= 0.85;
       node.x += node.vx;
       node.y += node.vy;
     }
   }
-
   expandUniverse() {
     let old_n = n; n += 1;
     for (let i = 0; i < n; i++) {
@@ -324,7 +325,9 @@ class Graph {
     for (let node of this.nodes) {
       for (let connectedNode of node.edges) {
         let d = dist(node.x, node.y, connectedNode.x, connectedNode.y);
-        if (d < 15) { line(node.x, node.y, connectedNode.x, connectedNode.y); }
+        if (d < 100) { 
+          line(node.x, node.y, connectedNode.x, connectedNode.y); 
+        }
       }
     }
     for (let node of this.nodes) {
