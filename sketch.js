@@ -24,6 +24,9 @@ class vector2 {
 class Node {
   constructor(id, x, y) {
     this.id = id; this.x = x; this.y = y; this.edges = [];
+    this.vx = 0; 
+    this.vy = 0;
+    
     this.Fields = {}; this.SourceFields = {}; this.Next_Fields = {}; this.Next_SourceFields = {};
     this.photon_dir = null; this.Next_photon_dir = null;
     this.createFields();
@@ -60,6 +63,58 @@ class Graph {
       let s = `${i},${j}`;
       this.addEdge(s, this.get_id_of_pos(i + 1, j)); this.addEdge(s, this.get_id_of_pos(i - 1, j));
       this.addEdge(s, this.get_id_of_pos(i, j + 1)); this.addEdge(s, this.get_id_of_pos(i, j - 1));
+    }
+  }
+
+  updateVisualPhysics() { // Graphe qui bouge 
+    // Répulsion 
+    for (let i = 0; i < this.nodes.length; i++) {
+      for (let j = i + 1; j < this.nodes.length; j++) {
+        let n1 = this.nodes[i];
+        let n2 = this.nodes[j];
+        
+        let dx = n1.x - n2.x;
+        let dy = n1.y - n2.y;
+        let dist = sqrt(dx*dx + dy*dy); 
+
+        if (dist > 0 && dist < 200) { 
+          let force = 200 / (dist * dist); 
+          n1.vx += (dx / dist) * force;
+          n1.vy += (dy / dist) * force;
+          n2.vx -= (dx / dist) * force;
+          n2.vy -= (dy / dist) * force;
+        }
+      }
+    }
+
+    //  Attraction 
+    for (let node of this.nodes) {
+      for (let connected of node.edges) {
+        let dx = connected.x - node.x;
+        let dy = connected.y - node.y;
+        let dist = sqrt(dx*dx + dy*dy);
+
+        if (dist > 0) {
+          let longueurRepos = 50; 
+          let forceRessort = 0.05; 
+          let force = (dist - longueurRepos) * forceRessort; 
+          node.vx += (dx / dist) * force;
+          node.vy += (dy / dist) * force;
+        }
+      }
+    }
+
+    // Damping
+    let centreX = n * 5; 
+    let centreY = n * 5;
+    for (let node of this.nodes) {
+      node.vx += (centreX - node.x) * 0.001;
+      node.vy += (centreY - node.y) * 0.001;
+      
+      node.vx *= 0.85; 
+      node.vy *= 0.85;
+      node.x += node.vx;
+      node.y += node.vy;
     }
   }
 
@@ -456,6 +511,8 @@ function draw() {
     text("Paramétrez l'univers à gauche\npuis cliquez sur 'Démarrer / Reset'", width / 2, height / 2);
     return;
   }
+
+  univers.updateVisualPhysics(); // met a jour la position des noeuds 
 
   // --- GESTION DU MODE PAUSE (MODAL) ---
   let isPaused = modalOverlay.style('display') === 'flex';
