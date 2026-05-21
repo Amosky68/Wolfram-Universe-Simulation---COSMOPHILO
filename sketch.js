@@ -672,8 +672,8 @@ function draw_UI() {
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
   text("Particules : " + nbParticules, 20, 80);
 
-  fill(120); noStroke(); textSize(14); textAlign(LEFT, TOP);
-  text("Version 2.47");
+  fill(120); noStroke(); textSize(14); textAlign(LEFT, BOTTOM);
+  text("Version 2.48", 20, 20);
 }
 
 
