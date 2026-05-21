@@ -106,7 +106,7 @@ class Graph {
 
         let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.20; 
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.01)) {
+        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.02)) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
@@ -504,6 +504,7 @@ function applyPreset() {
 
   if (choix === 'Big Bang') {
     sliderInitialN.value(3);
+    sliderExpSpeed.value(5);
     checkExpansion.checked(true);
     sliderFluctuation.value(0); 
     sliderDamping.value(0.97);
