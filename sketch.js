@@ -358,9 +358,8 @@ class Graph {
 
     if (selInitial.value() === 'Big Rip') {
        let facteur = 0.002; 
-       expSpeed *= (1 + Math.pow(nb_nodes * facteur, 1.5));
-       cout_expansion = 2 * expSpeed;
-      text(" expSpeed : " + expSpeed + " cout_expansion : " + cout_expansion, 200, 200);
+       expSpeed *= (1 + Math.pow(nb_nodes * facteur, 1.7));
+       cout_expansion = 1 / expSpeed;
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
@@ -674,7 +673,7 @@ function draw_UI() {
   text("Particules : " + nbParticules, 20, 100);
 
   fill(120); 
-  text("Version 2.50", 20, 20);
+  text("Version 2.51", 20, 20);
 }
  
 
