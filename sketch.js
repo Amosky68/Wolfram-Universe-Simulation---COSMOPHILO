@@ -332,10 +332,10 @@ class Graph {
     // --- SÉPARATION DES CAS D'EXPANSION ---
     if (selInitial.value() === 'Big Rip') {
        expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
-       cout_expansion = (5 / expSpeed) * nb_nodes;
+       cout_expansion = (0.5 / expSpeed) * nb_nodes;
     } else {
        // Cas général
-       cout_expansion = (0.5 / expSpeed) * nb_nodes;
+       cout_expansion = (0.05 / expSpeed) * nb_nodes;
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
