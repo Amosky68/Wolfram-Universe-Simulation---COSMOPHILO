@@ -675,7 +675,7 @@ function draw_UI() {
   fill(120); noStroke(); textSize(14); textAlign(LEFT, BOTTOM);
   text("Version 2.49", 20, 20);
 }
-
+ 
 
 function drawHelpBox() {
   // Si l'aide est masquée, on affiche juste un petit rappel en bas
