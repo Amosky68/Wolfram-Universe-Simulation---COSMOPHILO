@@ -693,3 +693,4 @@ function drawHelpBox() {
   fill(255, 255, 0); 
   text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 7);
 }
+ 
