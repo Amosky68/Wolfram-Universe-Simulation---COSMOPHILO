@@ -319,13 +319,25 @@ class Graph {
     //    univers.expandUniverse(); expansion_cooldown = 0;
     // }
 
-    let n = this.nodes.length;
-    let overExpand = min(10, expansion_cooldown / (0.01 * n / expSpeed)); // nombre de fois qu'il faut expand
+    let nb_nodes = this.nodes.length;
+    let cout_expansion = (0.5 / expSpeed) * nb_nodes * nb_nodes; 
+    let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
+
     if (checkExpansion.checked() && overExpand > 0) { 
-       for (let i = 0; i < overExpand; i++) {
-         this.expandOrganically(); 
+       
+       if (this.isTorus) {
+         // Dans un tore, il n'y a pas de bord. On doit faire grandir tout l'univers d'un coup !
+         this.expandUniverse();
+         expansion_cooldown = 0; // On réinitialise car expandUniverse ajoute beaucoup de nœuds
+       } 
+       else {
+         // Dans un univers plat, on peut étendre organiquement les bords
+         let expansions_a_faire = min(10, overExpand);
+         for (let i = 0; i < expansions_a_faire; i++) {
+           this.expandOrganically(); 
+         }
+         expansion_cooldown -= (expansions_a_faire * cout_expansion);
        }
-       expansion_cooldown = 0;
     }
     
     let probFluctu = parseFloat(sliderFluctuation.value());
@@ -398,6 +410,7 @@ function setupUI() {
   selInitial.option('Big Bang'); 
   selInitial.option('fluctuations Quantique'); 
   selInitial.option('Mort Thermique');
+  selInitial.option('Univers Torique'); 
   selInitial.selected('Big Bang');
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
   
@@ -471,6 +484,13 @@ function applyPreset() {
     checkExpansion.checked(true);
     sliderFluctuation.value(0); 
     sliderDamping.value(0.80); 
+  }
+  else if (choix === 'Univers Torique') {
+    sliderInitialN.value(12);
+    checkExpansion.checked(true); 
+    checkTorus.checked(true);     
+    sliderFluctuation.value(0.005); 
+    sliderDamping.value(0.90);
   }
 
   resetSlidersVisuals();
