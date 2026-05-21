@@ -320,7 +320,7 @@ class Graph {
     // }
 
     let n = this.nodes.length;
-    let overExpand = max(10, expansion_cooldown / (10 / expSpeed * n * n)); // nombre de fois qu'il faut expand
+    let overExpand = min(10, expansion_cooldown / (0.01 * n * n / expSpeed)); // nombre de fois qu'il faut expand
     if (checkExpansion.checked() && overExpand > 0) { 
        for (let i = 0; i < overExpand; i++) {
          this.expandOrganically(); 
