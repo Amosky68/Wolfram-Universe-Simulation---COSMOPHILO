@@ -326,25 +326,26 @@ class Graph {
     physicsSteps++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
-    
-    if (selInitial.value() === 'Big Rip') {
-       // L'accélération s'emballe de manière exponentielle avec le temps
-       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
-    }
-
     let nb_nodes = this.nodes.length;
-    let cout_expansion = (5 / expSpeed) * nb_nodes; 
+    let cout_expansion;
+
+    // --- SÉPARATION DES CAS D'EXPANSION ---
+    if (selInitial.value() === 'Big Rip') {
+       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
+       cout_expansion = (5 / expSpeed) * nb_nodes;
+    } else {
+       // Cas général
+       cout_expansion = (0.5 / expSpeed) * nb_nodes;
+    }
+    
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
 
     if (checkExpansion.checked() && overExpand > 0) { 
-       
        if (this.isTorus) {
-         // Dans un tore, il n'y a pas de bord. On doit faire grandir tout l'univers d'un coup !
          this.expandUniverse();
-         expansion_cooldown = 0; // On réinitialise car expandUniverse ajoute beaucoup de nœuds
+         expansion_cooldown = 0; 
        } 
-       else {
-         // Dans un univers plat, on peut étendre organiquement les bords
+       else { 
          let expansions_a_faire = min(10, overExpand);
          for (let i = 0; i < expansions_a_faire; i++) {
            this.expandOrganically(); 
