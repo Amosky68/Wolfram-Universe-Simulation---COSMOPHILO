@@ -351,7 +351,7 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.02; 
+       let facteur = 0.008; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
        cout_expansion = (0.005 / expSpeed) * nb_nodes;
     } else {
