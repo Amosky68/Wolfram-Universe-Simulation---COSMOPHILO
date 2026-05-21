@@ -69,9 +69,9 @@ class Graph {
   updateVisualPhysics() {
     let darkEnergy = 1;
     if (selInitial.value() === 'Big Rip') {
-      // L'énergie sombre augmente proportionnellement à la quantité d'espace (noeuds)
-      let facteur = 0.005; 
-      darkEnergy = 1 + Math.pow(this.nodes.length * facteur, 2);
+      let facteur = 0.004; 
+      // L'énergie sombre au cube : calme, puis explosion foudroyante
+      darkEnergy = 1 + Math.pow(this.nodes.length * facteur, 3);
     }
 
     // 1. Répulsion
@@ -103,22 +103,28 @@ class Graph {
         let dx = connected.x - node.x;
         let dy = connected.y - node.y;
         
-        let realDist = sqrt(dx*dx + dy*dy); // La VRAIE distance pour la physique
+        let realDist = sqrt(dx*dx + dy*dy); 
 
-        // Votre excellente idée pour fragiliser le centre, stockée séparément !
-        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
+        if (selInitial.value() === 'Big Rip') {
+          // Le centre est à peine plus fragile (0.8) pour déclencher des failles internes
+          let stressLocal = (node.edges.length === 4 && connected.edges.length === 4) ? 0.8 : 1.0;
+          
+          // Le seuil reste FIXE. C'est la force de l'énergie sombre qui va le briser.
+          let seuilDechirure = 120 * stressLocal;
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75) {
-          node.edges.splice(e, 1);
-          let indexReverse = connected.edges.indexOf(node);
-          if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
-          continue; 
+          if (realDist > seuilDechirure) {
+            node.edges.splice(e, 1);
+            let indexReverse = connected.edges.indexOf(node);
+            if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
+            continue; 
+          }
         }
 
         if (realDist > 0) {
           let longueurRepos = 12; 
+          // ON REMET LE RESSORT SOLIDE (0.05) ! 
+          // La toile reste sous haute tension jusqu'à ce qu'elle claque d'un coup.
           let forceRessort = 0.05; 
-          // On utilise realDist ici, la physique redevient stable !
           let force = (realDist - longueurRepos) * forceRessort; 
           node.vx += (dx / realDist) * force;
           node.vy += (dy / realDist) * force;
@@ -345,7 +351,7 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.05; 
+       let facteur = 0.02; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
        cout_expansion = (0.005 / expSpeed) * nb_nodes;
     } else {
