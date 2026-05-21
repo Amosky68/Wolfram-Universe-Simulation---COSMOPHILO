@@ -20,7 +20,7 @@ class vector2 {
   normalize() { let m = this.magnitude(); if (m !== 0) { this.x /= m; this.y /= m; } }
   add(other) { return new vector2(this.x + other.x, this.y + other.y); }
 }
-
+ 
 class Node {
   constructor(id, x, y) {
     this.id = id; this.x = x; this.y = y; this.edges = [];
