@@ -101,7 +101,7 @@ class Graph {
         let connected = node.edges[e];
         let dx = connected.x - node.x;
         let dy = connected.y - node.y;
-        let dist = sqrt(dx*dx + dy*dy);
+        let dist = sqrt(dx*dx + dy*dy) + sqrt(node.x*node.x + node.y*node.y) * 0.1; // pour que les noeuds du centre casse plus facilement
 
         if (selInitial.value() === 'Big Rip' && dist > 75) {
           node.edges.splice(e, 1);
