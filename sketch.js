@@ -132,39 +132,42 @@ class Graph {
   expandOrganically() {
     let bords = this.nodes.filter(n => n.edges.length < 4);
     if (bords.length === 0) return; 
-
     let parent = bords[Math.floor(Math.random() * bords.length)];
 
-    if (!this.organicCounter) this.organicCounter = 0;
-    this.organicCounter++;
-    let newId = "org_" + this.organicCounter;
-    
-    let centreX = n * 5; 
-    let centreY = n * 5;
-    let dirX = parent.x - centreX;
-    let dirY = parent.y - centreY;
-    let distCentre = sqrt(dirX*dirX + dirY*dirY);
-    
-    if (distCentre === 0) { dirX = 1; dirY = 0; distCentre = 1; }
+    let coords = parent.id.split(',');
+    let px = parseInt(coords[0]);
+    let py = parseInt(coords[1]);
 
-    let spawnX = parent.x + (dirX / distCentre) * 25 + random(-2, 2);
-    let spawnY = parent.y + (dirY / distCentre) * 25 + random(-2, 2);
+    let voisins_potentiels = [
+      { lx: px + 1, ly: py },
+      { lx: px - 1, ly: py },
+      { lx: px, ly: py + 1 },
+      { lx: px, ly: py - 1 }
+    ];
+
+    let voisins_manquants = voisins_potentiels.filter(v => !this.getnode(`${v.lx},${v.ly}`));
+    
+    if (voisins_manquants.length === 0) return; // Sécurité
+
+    let cible = voisins_manquants[Math.floor(Math.random() * voisins_manquants.length)];
+    let newId = `${cible.lx},${cible.ly}`;
+
+    let longueurRessort = 25;
+    let spawnX = parent.x + (cible.lx - px) * longueurRessort + random(-2, 2);
+    let spawnY = parent.y + (cible.ly - py) * longueurRessort + random(-2, 2);
 
     let newNode = this.addNode(newId, spawnX, spawnY);
-    this.addEdge(newId, parent.id);
 
-    let rayon_recherche = 35; 
-    let connexions_faites = 1; 
+    let verif_voisins = [
+      `${cible.lx + 1},${cible.ly}`,
+      `${cible.lx - 1},${cible.ly}`,
+      `${cible.lx},${cible.ly + 1}`,
+      `${cible.lx},${cible.ly - 1}`
+    ];
 
-    for (let autre of bords) {
-      if (autre.id !== parent.id && autre.edges.length < 4 && connexions_faites < 3) {
-        
-        let d = dist(spawnX, spawnY, autre.x, autre.y);
-        
-        if (d < rayon_recherche) {
-          this.addEdge(newId, autre.id);
-          connexions_faites++;
-        }
+    for (let v_id of verif_voisins) {
+      if (this.getnode(v_id)) {
+        this.addEdge(newId, v_id);
       }
     }
   }
