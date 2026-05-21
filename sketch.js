@@ -104,9 +104,9 @@ class Graph {
         
         let realDist = sqrt(dx*dx + dy*dy); 
 
-        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
+        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.20; 
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.002)) {
+        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.01)) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
@@ -147,25 +147,33 @@ class Graph {
   }
 
   expandOrganically() {
+    // 1. Trouver les bords
     let bords = this.nodes.filter(n => n.edges.length < 4);
-    if (bords.length === 0) return; 
-    let parent = bords[Math.floor(Math.random() * bords.length)];
+    if (bords.length === 0) return false; 
 
+    // 2. Filtrer pour ne garder QUE ceux qui ont un emplacement logique vide
+    let parents_valides = bords.filter(p => {
+      let coords = p.id.split(',');
+      let px = parseInt(coords[0]);
+      let py = parseInt(coords[1]);
+      return !this.getnode(`${px+1},${py}`) || !this.getnode(`${px-1},${py}`) ||
+             !this.getnode(`${px},${py+1}`) || !this.getnode(`${px},${py-1}`);
+    });
+
+    if (parents_valides.length === 0) return false; // Tous les bords sont bloqués
+
+    // 3. Choix sécurisé
+    let parent = parents_valides[Math.floor(Math.random() * parents_valides.length)];
     let coords = parent.id.split(',');
     let px = parseInt(coords[0]);
     let py = parseInt(coords[1]);
 
     let voisins_potentiels = [
-      { lx: px + 1, ly: py },
-      { lx: px - 1, ly: py },
-      { lx: px, ly: py + 1 },
-      { lx: px, ly: py - 1 }
+      { lx: px + 1, ly: py }, { lx: px - 1, ly: py },
+      { lx: px, ly: py + 1 }, { lx: px, ly: py - 1 }
     ];
 
     let voisins_manquants = voisins_potentiels.filter(v => !this.getnode(`${v.lx},${v.ly}`));
-    
-    if (voisins_manquants.length === 0) return; // Sécurité
-
     let cible = voisins_manquants[Math.floor(Math.random() * voisins_manquants.length)];
     let newId = `${cible.lx},${cible.ly}`;
 
@@ -176,10 +184,8 @@ class Graph {
     let newNode = this.addNode(newId, spawnX, spawnY);
 
     let verif_voisins = [
-      `${cible.lx + 1},${cible.ly}`,
-      `${cible.lx - 1},${cible.ly}`,
-      `${cible.lx},${cible.ly + 1}`,
-      `${cible.lx},${cible.ly - 1}`
+      `${cible.lx + 1},${cible.ly}`, `${cible.lx - 1},${cible.ly}`,
+      `${cible.lx},${cible.ly + 1}`, `${cible.lx},${cible.ly - 1}`
     ];
 
     for (let v_id of verif_voisins) {
@@ -187,6 +193,8 @@ class Graph {
         this.addEdge(newId, v_id);
       }
     }
+    
+    return true; // Succès !
   }
 
   make_big_bang() {
@@ -333,14 +341,13 @@ class Graph {
     let nb_nodes = this.nodes.length;
     let cout_expansion;
 
-    // --- SÉPARATION CORRIGÉE DES CAS D'EXPANSION ---
     if (selInitial.value() === 'Big Rip') {
-       let speedBoost = 1 + Math.pow(physicsSteps * 0.005, 2);
-       // Coût de base faible qui s'effondre avec le temps : le nombre d'ajouts va exploser !
-       cout_expansion = 10 / (expSpeed * speedBoost); 
+       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
+       cout_expansion = (0.05 / expSpeed) * nb_nodes;
     } else {
-       // Cas général : ralentit doucement et logiquement avec la taille de l'univers
-       cout_expansion = (0.01 / expSpeed) * nb_nodes;
+       // NOUVEAU : La Racine Carrée !
+       // L'expansion visuelle restera constante peu importe la taille de l'univers.
+       cout_expansion = (0.5 / expSpeed) * Math.sqrt(nb_nodes); 
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
@@ -351,14 +358,19 @@ class Graph {
          expansion_cooldown = 0; 
        } 
        else { 
-         // On lève la limite de 10 max pour le Big Rip pour qu'il puisse se déchirer violemment
-         let limite_ajout = (selInitial.value() === 'Big Rip') ? 50 : 10;
+         // Limite rehaussée à 20 pour un visuel fluide, et 60 pour le Big Rip
+         let limite_ajout = (selInitial.value() === 'Big Rip') ? 60 : 20; 
          let expansions_a_faire = min(limite_ajout, overExpand);
+         let ajouts_reels = 0;
          
          for (let i = 0; i < expansions_a_faire; i++) {
-           this.expandOrganically(); 
+           // On ajoute au compteur UNIQUEMENT si la création a réussi
+           if (this.expandOrganically()) {
+               ajouts_reels++;
+           }
          }
-         expansion_cooldown -= (expansions_a_faire * cout_expansion);
+         // On ne déduit du budget que les nœuds réels
+         expansion_cooldown -= (ajouts_reels * cout_expansion);
        }
     }
     
