@@ -110,7 +110,7 @@ class Graph {
           let stressLocal = (node.edges.length === 4 && connected.edges.length === 4) ? 0.8 : 1.0;
           
           // Le seuil reste FIXE. C'est la force de l'énergie sombre qui va le briser.
-          let seuilDechirure = 100 * stressLocal;
+          let seuilDechirure = 100 * stressLocal / (1 + this.nodes.length / 1000);
 
           if (realDist > seuilDechirure) {
             node.edges.splice(e, 1);
@@ -357,9 +357,10 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.0004; 
+       let facteur = 0.002; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 1.5));
        cout_expansion = 2 * expSpeed;
+      text(" expSpeed : " + expSpeed + " cout_expansion : " + cout_expansion, 200, 200);
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
@@ -666,14 +667,14 @@ function draw_UI() {
   fill(255); noStroke(); textSize(14); textAlign(LEFT, TOP);
   frameRateDelay = 0.95 * frameRateDelay + frameRate() * 0.05;
   let currentFPS = Math.round(frameRateDelay);
-  text("Âge de l'univers (étapes) : " + physicsSteps, 20, 20);
-  text("Nombre de noeuds : " + univers.nodes.length, 20, 40);
-  text("FPS : " + currentFPS, 20, 60);
+  text("Âge de l'univers (étapes) : " + physicsSteps, 20, 40);
+  text("Nombre de noeuds : " + univers.nodes.length, 20, 60);
+  text("FPS : " + currentFPS, 20, 80);
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
-  text("Particules : " + nbParticules, 20, 80);
+  text("Particules : " + nbParticules, 20, 100);
 
-  fill(120); noStroke(); textSize(14); textAlign(LEFT, BOTTOM);
-  text("Version 2.49", 20, 20);
+  fill(120); 
+  text("Version 2.50", 20, 20);
 }
  
 
