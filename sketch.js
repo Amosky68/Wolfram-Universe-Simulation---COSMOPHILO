@@ -68,6 +68,14 @@ class Graph {
 
   updateVisualPhysics() {
     // Répulsion
+
+    // 1. Calcul de l'énergie sombre (seulement pour le Big Rip)
+    let darkEnergy = 1;
+    if (selInitial.value() === 'Big Rip') {
+      darkEnergy = 1 + physicsSteps * 0.01; 
+    }
+
+    // 2. Répulsion
     for (let i = 0; i < this.nodes.length; i++) {
       for (let j = i + 1; j < this.nodes.length; j++) {
         let n1 = this.nodes[i];
@@ -79,7 +87,8 @@ class Graph {
 
         if (dist > 0 && dist < 100) { 
           let safeDist = max(dist, 5); 
-          let force = 100 / (safeDist * safeDist + 9); 
+          // On applique l'énergie sombre 
+          let force = (100 * darkEnergy) / (safeDist * safeDist + 9); 
           
           n1.vx += (dx / dist) * force;
           n1.vy += (dy / dist) * force;
@@ -89,17 +98,25 @@ class Graph {
       }
     }
 
-    // Attraction 
+    // Attraction et Déchirure (Big Rip)
     for (let node of this.nodes) {
-      for (let connected of node.edges) {
+      for (let e = node.edges.length - 1; e >= 0; e--) {
+        let connected = node.edges[e];
         let dx = connected.x - node.x;
         let dy = connected.y - node.y;
         let dist = sqrt(dx*dx + dy*dy);
 
+        // déchirure si on dépasse un seuil
+        if (selInitial.value() === 'Big Rip' && dist > 75) {
+          node.edges.splice(e, 1);
+          let indexReverse = connected.edges.indexOf(node);
+          if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
+          continue; // L'arête n'existant plus, on passe au voisin suivant
+        }
+
         if (dist > 0) {
           let longueurRepos = 12; 
           let forceRessort = 0.05; 
-          
           let force = (dist - longueurRepos) * forceRessort; 
           node.vx += (dx / dist) * force;
           node.vy += (dy / dist) * force;
@@ -114,7 +131,7 @@ class Graph {
       node.vx += (centreX - node.x) * 0.001;
       node.vy += (centreY - node.y) * 0.001;
       
-      node.vx *= 0.85; // Friction
+      node.vx *= 0.85; 
       node.vy *= 0.85;
       node.x += node.vx;
       node.y += node.vy;
@@ -313,11 +330,10 @@ class Graph {
     physicsSteps++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
-    // ancienne expension non organique
-    
-    // if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
-    //    univers.expandUniverse(); expansion_cooldown = 0;
-    // }
+
+    if (selInitial.value() === 'Big Rip') {
+       expSpeed *= (1 + physicsSteps * 0.005); // La vitesse augmente continuellement
+    }
 
     let nb_nodes = this.nodes.length;
     let cout_expansion = (0.5 / expSpeed) * nb_nodes * nb_nodes; 
@@ -411,6 +427,7 @@ function setupUI() {
   selInitial.option('fluctuations Quantique'); 
   selInitial.option('Mort Thermique');
   selInitial.option('Univers Torique'); 
+  selInitial.option('Big Rip'); 
   selInitial.selected('Big Bang');
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
   
@@ -491,6 +508,13 @@ function applyPreset() {
     checkTorus.checked(true);     
     sliderFluctuation.value(0.005); 
     sliderDamping.value(0.90);
+  }
+  else if (choix === 'Big Rip') {
+    sliderInitialN.value(8); 
+    checkExpansion.checked(true);
+    checkTorus.checked(false);
+    sliderFluctuation.value(0.0005); 
+    sliderDamping.value(0.95);
   }
 
   resetSlidersVisuals();
