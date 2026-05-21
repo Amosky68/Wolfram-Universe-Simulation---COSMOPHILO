@@ -300,6 +300,51 @@ function setupUI() {
 
   btnSettings = createButton('⚙️ Paramètres Avancés').parent(panel).class('btn-secondary').style('margin-top', '20px');
   btnSettings.mousePressed(() => modalOverlay.style('display', 'flex'));
+
+  // Senarios 
+
+  createDiv('1. SCÉNARIOS COSMOLOGIQUES').class('section-title').parent(panel);
+  selInitial = createRadio('groupe_etat');
+  selInitial.option('Big Bang'); 
+  selInitial.option('Écume Quantique'); 
+  selInitial.option('Mort Thermique');
+  selInitial.selected('Big Bang');
+  selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
+  
+  // NOUVEAU : On écoute le changement de sélection pour appliquer le preset
+  selInitial.changed(applyPreset);
+  
+}
+
+
+function applyPreset() {
+  let choix = selInitial.value();
+
+  if (choix === 'Big Bang') {
+    sliderInitialN.value(3);
+    checkExpansion.checked(true);
+    sliderFluctuation.value(0); 
+    sliderDamping.value(0.97);
+  } 
+  else if (choix === 'fluctuations Quantique') {
+    sliderInitialN.value(20);
+    checkExpansion.checked(false); 
+    sliderFluctuation.value(0.005); 
+    sliderDamping.value(0.90); 
+  }
+  else if (choix === 'Mort Thermique') {
+    sliderInitialN.value(15);
+    checkExpansion.checked(true);
+    sliderFluctuation.value(0); 
+    sliderDamping.value(0.80); 
+  }
+  
+  // On met à jour les textes affichés à côté des sliders dans le modal
+  // (Cela simule le fait que l'utilisateur a bougé les sliders lui-même)
+  sliderInitialN.elt.dispatchEvent(new Event('input'));
+  sliderExpSpeed.elt.dispatchEvent(new Event('input'));
+  sliderFluctuation.elt.dispatchEvent(new Event('input'));
+  sliderDamping.elt.dispatchEvent(new Event('input'));
 }
 
 function setupSettingsModal() {
@@ -337,7 +382,9 @@ function initSimulation() {
   n = parseInt(sliderInitialN.value()); // On utilise la valeur du slider
   univers = new Graph(checkTorus.checked());
   univers.Setup();
-  if (selInitial.value() === 'Big Bang') univers.make_big_bang();
+  if (selInitial.value() === 'Big Bang' || selInitial.value() === 'Mort Thermique') {
+    univers.make_big_bang(); 
+  }
   ui_state = "running"; timestep = 0; expansion_cooldown = 0;
   offsetX = 0; offsetY = 0; zoom = min(width, height) / (n * 15); 
   physicsSteps=0;
