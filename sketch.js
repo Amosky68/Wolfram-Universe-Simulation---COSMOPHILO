@@ -359,8 +359,8 @@ class Graph {
       if (node.SourceFields["photon"] !== 0) fill(255, 255, 50); 
       noStroke();
       let hasSource = (node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0);
-      if (hasSource) { stroke(255); strokeWeight(1); circle(node.x, node.y, 8); } 
-      else { noStroke(); circle(node.x, node.y, 8); }
+      if (hasSource) { stroke(255); strokeWeight(2); circle(node.x, node.y, 12); } 
+      else { noStroke(); circle(node.x, node.y, 12); }
     }
   }
 }
