@@ -101,7 +101,7 @@ class Graph {
         let connected = node.edges[e];
         let dx = connected.x - node.x;
         let dy = connected.y - node.y;
-        let dist = sqrt(dx*dx + dy*dy) + sqrt(node.x*node.x + node.y*node.y) * 0.1; // pour que les noeuds du centre casse plus facilement
+        let dist = sqrt(dx*dx + dy*dy) - sqrt(node.x*node.x + node.y*node.y) * 0.15; // pour que les noeuds du centre casse plus facilement
 
         if (selInitial.value() === 'Big Rip' && dist > 75) {
           node.edges.splice(e, 1);
@@ -332,10 +332,10 @@ class Graph {
     // --- SÉPARATION DES CAS D'EXPANSION ---
     if (selInitial.value() === 'Big Rip') {
        expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
-       cout_expansion = (0.5 / expSpeed) * nb_nodes;
+       cout_expansion = (0.05 / expSpeed) * nb_nodes;
     } else {
        // Cas général
-       cout_expansion = (0.05 / expSpeed) * nb_nodes;
+       cout_expansion = (0.005 / expSpeed) * nb_nodes;
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
