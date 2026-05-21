@@ -72,6 +72,29 @@ class Graph {
     this.buildEdges();
   }
 
+  expandOrganically() {
+    // noeuds à la frontière (pour ne pas ajouter des noeuds au milieu du graph, ce qui rendrait la simulation incompréhensible a regarder
+    let bords = this.nodes.filter(n => n.edges.length < 4);
+    if (bords.length === 0) return; // si l'univers est torique
+
+    //noeud aléatoire
+    let parent = bords[Math.floor(Math.random() * bords.length)];
+
+    if (!this.organicCounter) this.organicCounter = 0;
+    this.organicCounter++;
+    let newId = "org_" + this.organicCounter;
+    
+    let newNode = this.addNode(newId, parent.x + random(-10, 10), parent.y + random(-10, 10));
+
+    this.addEdge(newId, parent.id);
+
+    let voisins_dispos = parent.edges.filter(n => n.edges.length < 4);
+    if (voisins_dispos.length > 0) {
+      let sibling = voisins_dispos[Math.floor(Math.random() * voisins_dispos.length)];
+      this.addEdge(newId, sibling.id);
+    }
+  }
+
   make_big_bang() {
     let total_nodes = this.nodes.length; let half = Math.floor(total_nodes / 2);
     let energie = [];
@@ -140,17 +163,20 @@ class Graph {
     let particules_neg = this.nodes.filter(n => n.SourceFields["charge-"] > 0);
 
     let move_particle = (particule, target_field, my_field) => {
-      let gradient = this.get_gradient(target_field, particule);
       let current_charge = particule.SourceFields[my_field];
-      if (Math.abs(gradient.x) < 0.0001 && Math.abs(gradient.y) < 0.0001) return; 
+      let best_voisin = null;
+      
+      // La particule regarde simplement l'état actuel de son champ pour s'améliorer
+      let max_val = particule.Fields[target_field]; 
 
-      let nodes = this.get_nodes_with_dir(gradient, particule);
-      let target_node = (Math.abs(gradient.x) > Math.abs(gradient.y)) ? nodes[0] : nodes[1];
-      if (!target_node && nodes[0]) target_node = nodes[0];
-      if (!target_node && nodes[1]) target_node = nodes[1];
-
-      if (target_node) {
-        target_node.Next_SourceFields[my_field] += current_charge;
+      for (let voisin of particule.edges) {
+        if (voisin.Fields[target_field] > max_val) {
+          max_val = voisin.Fields[target_field];
+          best_voisin = voisin;
+        }
+      }
+      if (best_voisin) {
+        best_voisin.Next_SourceFields[my_field] += current_charge;
         particule.Next_SourceFields[my_field] -= current_charge;
       }
     };
@@ -210,8 +236,15 @@ class Graph {
     physicsSteps++;
     
     let expSpeed = parseFloat(sliderExpSpeed.value());
-    if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
-       univers.expandUniverse(); expansion_cooldown = 0;
+    // ancienne expension non organique
+    
+    // if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
+    //    univers.expandUniverse(); expansion_cooldown = 0;
+    // }
+    
+    if (checkExpansion.checked() && expansion_cooldown >= (5 / expSpeed)) { 
+       this.expandOrganically(); 
+       expansion_cooldown = 0;
     }
     
     let probFluctu = parseFloat(sliderFluctuation.value());
