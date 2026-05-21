@@ -97,7 +97,7 @@ class Graph {
         let dist = sqrt(dx*dx + dy*dy);
 
         if (dist > 0) {
-          let longueurRepos = 20; 
+          let longueurRepos = 18; 
           let forceRessort = 0.05; 
           
           let force = (dist - longueurRepos) * forceRessort; 
@@ -145,20 +145,27 @@ class Graph {
     let dirY = parent.y - centreY;
     let distCentre = sqrt(dirX*dirX + dirY*dirY);
     
-    // Sécurité si le nœud est pile au centre
     if (distCentre === 0) { dirX = 1; dirY = 0; distCentre = 1; }
 
     let spawnX = parent.x + (dirX / distCentre) * 25 + random(-2, 2);
     let spawnY = parent.y + (dirY / distCentre) * 25 + random(-2, 2);
 
     let newNode = this.addNode(newId, spawnX, spawnY);
-
     this.addEdge(newId, parent.id);
 
-    let voisins_dispos = parent.edges.filter(n => n.edges.length < 4);
-    if (voisins_dispos.length > 0) {
-      let sibling = voisins_dispos[Math.floor(Math.random() * voisins_dispos.length)];
-      this.addEdge(newId, sibling.id);
+    let rayon_recherche = 35; 
+    let connexions_faites = 1; 
+
+    for (let autre of bords) {
+      if (autre.id !== parent.id && autre.edges.length < 4 && connexions_faites < 3) {
+        
+        let d = dist(spawnX, spawnY, autre.x, autre.y);
+        
+        if (d < rayon_recherche) {
+          this.addEdge(newId, autre.id);
+          connexions_faites++;
+        }
+      }
     }
   }
 
