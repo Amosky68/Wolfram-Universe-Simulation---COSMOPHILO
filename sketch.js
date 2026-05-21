@@ -318,9 +318,12 @@ class Graph {
     // if (checkExpansion.checked() && expansion_cooldown >= (n*n*n/100/expSpeed + 0.2)) { 
     //    univers.expandUniverse(); expansion_cooldown = 0;
     // }
-    
-    if (checkExpansion.checked() && expansion_cooldown >= (0.1 / expSpeed * n)) { 
-       this.expandOrganically(); 
+
+    let overExpand = max(10, expansion_cooldown / (0.1 / expSpeed * n)); // nombre de fois qu'il faut expand
+    if (checkExpansion.checked() && overExpand > 0) { 
+       for (let i = 0; i < overExpand; i++) {
+         this.expandOrganically(); 
+       }
        expansion_cooldown = 0;
     }
     
