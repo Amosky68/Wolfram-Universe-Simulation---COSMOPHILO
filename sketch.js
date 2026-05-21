@@ -101,21 +101,25 @@ class Graph {
         let connected = node.edges[e];
         let dx = connected.x - node.x;
         let dy = connected.y - node.y;
-        let dist = sqrt(dx*dx + dy*dy) - sqrt(node.x*node.x + node.y*node.y) * 0.15; // pour que les noeuds du centre casse plus facilement
+        
+        let realDist = sqrt(dx*dx + dy*dy); 
 
-        if (selInitial.value() === 'Big Rip' && dist > 75) {
+        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
+
+        if (selInitial.value() === 'Big Rip' && distDechirure > 75) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
-          continue; // On passe à l'arête suivante
+          continue; 
         }
 
-        if (dist > 0) {
+        if (realDist > 0) {
           let longueurRepos = 12; 
           let forceRessort = 0.05; 
-          let force = (dist - longueurRepos) * forceRessort; 
-          node.vx += (dx / dist) * force;
-          node.vy += (dy / dist) * force;
+          // On utilise realDist ici, la physique redevient stable !
+          let force = (realDist - longueurRepos) * forceRessort; 
+          node.vx += (dx / realDist) * force;
+          node.vy += (dy / realDist) * force;
         }
       }
     }
@@ -329,13 +333,14 @@ class Graph {
     let nb_nodes = this.nodes.length;
     let cout_expansion;
 
-    // --- SÉPARATION DES CAS D'EXPANSION ---
+    // --- SÉPARATION CORRIGÉE DES CAS D'EXPANSION ---
     if (selInitial.value() === 'Big Rip') {
-       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
-       cout_expansion = (0.05 / expSpeed) * nb_nodes;
+       let speedBoost = 1 + Math.pow(physicsSteps * 0.005, 2);
+       // Coût de base faible qui s'effondre avec le temps : le nombre d'ajouts va exploser !
+       cout_expansion = 10 / (expSpeed * speedBoost); 
     } else {
-       // Cas général
-       cout_expansion = (0.005 / expSpeed) * nb_nodes;
+       // Cas général : ralentit doucement et logiquement avec la taille de l'univers
+       cout_expansion = (0.1 / expSpeed) * nb_nodes;
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
@@ -346,7 +351,10 @@ class Graph {
          expansion_cooldown = 0; 
        } 
        else { 
-         let expansions_a_faire = min(10, overExpand);
+         // On lève la limite de 10 max pour le Big Rip pour qu'il puisse se déchirer violemment
+         let limite_ajout = (selInitial.value() === 'Big Rip') ? 50 : 10;
+         let expansions_a_faire = min(limite_ajout, overExpand);
+         
          for (let i = 0; i < expansions_a_faire; i++) {
            this.expandOrganically(); 
          }
