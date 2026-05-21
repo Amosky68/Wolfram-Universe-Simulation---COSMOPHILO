@@ -69,11 +69,12 @@ class Graph {
   updateVisualPhysics() {
     let darkEnergy = 1;
     if (selInitial.value() === 'Big Rip') {
-      // La répulsion devient colossale très rapidement
-      darkEnergy = 1 + Math.pow(physicsSteps * 0.01, 2);
+      // L'énergie sombre augmente proportionnellement à la quantité d'espace (noeuds)
+      let facteur = 0.005; 
+      darkEnergy = 1 + Math.pow(this.nodes.length * facteur, 2);
     }
 
-    // Répulsion 
+    // 1. Répulsion
     for (let i = 0; i < this.nodes.length; i++) {
       for (let j = i + 1; j < this.nodes.length; j++) {
         let n1 = this.nodes[i];
@@ -95,7 +96,7 @@ class Graph {
       }
     }
 
-    // Attraction et Déchirure de l'espace
+    // 2. Attraction ET Déchirure de l'espace
     for (let node of this.nodes) {
       for (let e = node.edges.length - 1; e >= 0; e--) {
         let connected = node.edges[e];
@@ -104,9 +105,11 @@ class Graph {
         
         let realDist = sqrt(dx*dx + dy*dy); 
 
-        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
+        // VOTRE IDÉE CORRIGÉE : Le seuil baisse à mesure que l'univers se remplit !
+        // Il passe de 120 pixels (solide) à presque 0 (ultra fragile)
+        let seuilDechirure = 120 / (1 + this.nodes.length * 0.001);
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.1)) {
+        if (selInitial.value() === 'Big Rip' && realDist > seuilDechirure) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
@@ -116,7 +119,6 @@ class Graph {
         if (realDist > 0) {
           let longueurRepos = 12; 
           let forceRessort = 0.05; 
-          // On utilise realDist ici, la physique redevient stable !
           let force = (realDist - longueurRepos) * forceRessort; 
           node.vx += (dx / realDist) * force;
           node.vy += (dy / realDist) * force;
@@ -342,12 +344,13 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       expSpeed *= (1 + Math.pow(physicsSteps * 0.005, 2));
+       let facteur = 0.005; 
+       expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
        cout_expansion = (0.05 / expSpeed) * nb_nodes;
     } else {
        // NOUVEAU : La Racine Carrée !
        // L'expansion visuelle restera constante peu importe la taille de l'univers.
-       cout_expansion = (0.5 / expSpeed) * Math.sqrt(nb_nodes); 
+       cout_expansion = (0.2 / expSpeed) * Math.sqrt(nb_nodes); 
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
