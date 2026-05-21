@@ -500,6 +500,8 @@ function resetSlidersValue() {
   sliderDiffusion.value(1);
   sliderDamping.value(0.97);
 
+  checkTorus.checked(false); 
+
   resetSlidersVisuals();
 }
 
@@ -542,7 +544,7 @@ function applyPreset() {
     sliderInitialN.value(15);
     checkExpansion.checked(false); 
     checkTorus.checked(true);     
-    sliderFluctuation.value(0.005); 
+    sliderFluctuation.value(0.002); 
     sliderDamping.value(0.90);
   }
   else if (choix === 'Big Rip') {
@@ -673,7 +675,7 @@ function draw_UI() {
   text("Particules : " + nbParticules, 20, 100);
 
   fill(120); 
-  text("Version 2.51", 20, 20);
+  text("Version 2.53", 20, 20);
 }
  
 
