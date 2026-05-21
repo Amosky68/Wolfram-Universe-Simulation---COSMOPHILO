@@ -106,7 +106,7 @@ class Graph {
 
         let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75) {
+        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.002)) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
@@ -340,7 +340,7 @@ class Graph {
        cout_expansion = 10 / (expSpeed * speedBoost); 
     } else {
        // Cas général : ralentit doucement et logiquement avec la taille de l'univers
-       cout_expansion = (0.1 / expSpeed) * nb_nodes;
+       cout_expansion = (0.01 / expSpeed) * nb_nodes;
     }
     
     let overExpand = Math.floor(expansion_cooldown / cout_expansion); 
