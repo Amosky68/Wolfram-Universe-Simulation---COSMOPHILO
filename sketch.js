@@ -273,16 +273,21 @@ function setupUI() {
   let panel = createDiv('').class('ui-panel');
   createDiv('<h2>Cosmologie Wolfram</h2>').parent(panel);
 
-  createDiv('1. ÉTAT INITIAL').class('section-title').parent(panel);
+    // Senarios 
+
+  createDiv('1. SCÉNARIOS COSMOLOGIQUES').class('section-title').parent(panel);
   selInitial = createRadio('groupe_etat');
-  selInitial.option('Vide'); selInitial.option('Big Bang'); selInitial.selected('Big Bang');
+  selInitial.option('Big Bang'); 
+  selInitial.option('fluctuations Quantique'); 
+  selInitial.option('Mort Thermique');
+  selInitial.selected('Big Bang');
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
+  
+  // NOUVEAU : On écoute le changement de sélection pour appliquer le preset
+  selInitial.changed(applyPreset);
 
-  createDiv('2. PARAMÈTRES PHYSIQUES').class('section-title').parent(panel);
-  checkTorus = createCheckbox(' Univers Torique', false).parent(panel);
-  checkExpansion = createCheckbox(' Expansion Spatiale', true).parent(panel);
-
-  createDiv('3. CONTRÔLE DU TEMPS').class('section-title').parent(panel);
+  
+  createDiv('CONTRÔLE DU TEMPS').class('section-title').parent(panel);
   selMode = createRadio('groupe_temps');
   selMode.option('Auto'); selMode.option('Manuel'); selMode.selected('Manuel');
   selMode.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
@@ -299,26 +304,37 @@ function setupUI() {
   btnNext.mousePressed(doStep);
 
   btnSettings = createButton('⚙️ Paramètres Avancés').parent(panel).class('btn-secondary').style('margin-top', '20px');
-  btnSettings.mousePressed(() => modalOverlay.style('display', 'flex'));
+  btnSettings.mousePressed(() => modalOverlay.style('display', 'flex'));  
+}
 
-  // Senarios 
+function resetSlidersValue() {
+  sliderInitialN.value(10);
+  sliderExpSpeed.value(1);
+  
+  sliderAnnihilation.value(0.9);
+  sliderPhotonDest.value(0.015);
+  sliderFluctuation.value(0.00005);
+  sliderDiffusion.value(1);
+  sliderDamping.value(0.97);
 
-  createDiv('1. SCÉNARIOS COSMOLOGIQUES').class('section-title').parent(panel);
-  selInitial = createRadio('groupe_etat');
-  selInitial.option('Big Bang'); 
-  selInitial.option('Écume Quantique'); 
-  selInitial.option('Mort Thermique');
-  selInitial.selected('Big Bang');
-  selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
+  resetSlidersVisuals();
+}
+
+function resetSlidersVisuals() {
+  sliderInitialN.elt.dispatchEvent(new Event('input'));
+  sliderExpSpeed.elt.dispatchEvent(new Event('input'));
   
-  // NOUVEAU : On écoute le changement de sélection pour appliquer le preset
-  selInitial.changed(applyPreset);
-  
+  sliderAnnihilation.elt.dispatchEvent(new Event('input'));
+  sliderPhotonDest.elt.dispatchEvent(new Event('input'));
+  sliderFluctuation.elt.dispatchEvent(new Event('input'));
+  sliderDiffusion.elt.dispatchEvent(new Event('input'));
+  sliderDamping.elt.dispatchEvent(new Event('input'));
 }
 
 
 function applyPreset() {
   let choix = selInitial.value();
+  resetSlidersValue();
 
   if (choix === 'Big Bang') {
     sliderInitialN.value(3);
@@ -338,13 +354,8 @@ function applyPreset() {
     sliderFluctuation.value(0); 
     sliderDamping.value(0.80); 
   }
-  
-  // On met à jour les textes affichés à côté des sliders dans le modal
-  // (Cela simule le fait que l'utilisateur a bougé les sliders lui-même)
-  sliderInitialN.elt.dispatchEvent(new Event('input'));
-  sliderExpSpeed.elt.dispatchEvent(new Event('input'));
-  sliderFluctuation.elt.dispatchEvent(new Event('input'));
-  sliderDamping.elt.dispatchEvent(new Event('input'));
+
+  resetSlidersVisuals();
 }
 
 function setupSettingsModal() {
@@ -463,7 +474,7 @@ function drawHelpBox() {
 
   // Paramètres de la boîte
   let boxWidth = 320;
-  let boxHeight = 150;
+  let boxHeight = 250;
   let padding = 15;
   // Positionnée en haut à droite
   let x = width - boxWidth - 10; 
@@ -490,7 +501,7 @@ function drawHelpBox() {
   text("🔴 Rouge : champ négatif", x + padding, textY + interligne * 2);
   text("🟡 Jaune : Photon", x + padding, textY + interligne * 3);
   text("⚪ Bordure Blanche : Source (particule)", x + padding, textY + interligne * 4);
-  text("🌑 Nœud Gris : Vide spatial", x + padding, textY + interligne * 5);
+  text("⚫ Nœud Gris : Vide spatial", x + padding, textY + interligne * 5);
   
   fill(255, 255, 0); 
   text("Appuyez sur [H] pour masquer", x + padding, textY + interligne * 4);
