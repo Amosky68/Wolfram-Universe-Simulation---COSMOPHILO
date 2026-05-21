@@ -575,7 +575,7 @@ function draw_UI() {
   frameRateDelay = 0.95 * frameRateDelay + frameRate() * 0.05;
   let currentFPS = Math.round(frameRateDelay);
   text("Âge de l'univers (étapes) : " + physicsSteps, 20, 20);
-  text("Nombre de noeuds : " + this.nodes.length, 20, 40);
+  text("Nombre de noeuds : " + univers.nodes.length, 20, 40);
   text("FPS : " + currentFPS, 20, 60);
   let nbParticules = univers.nodes.filter(node => node.SourceFields["charge+"] !== 0 || node.SourceFields["charge-"] !== 0 || node.SourceFields["photon"] !== 0).length;
   text("Particules : " + nbParticules, 20, 80);
