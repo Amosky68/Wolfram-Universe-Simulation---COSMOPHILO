@@ -104,9 +104,9 @@ class Graph {
         
         let realDist = sqrt(dx*dx + dy*dy); 
 
-        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.20; 
+        let distDechirure = realDist - sqrt(node.x*node.x + node.y*node.y) * 0.15; 
 
-        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.04)) {
+        if (selInitial.value() === 'Big Rip' && distDechirure > 75 / (1 + this.nodes.length * 0.1)) {
           node.edges.splice(e, 1);
           let indexReverse = connected.edges.indexOf(node);
           if (indexReverse !== -1) connected.edges.splice(indexReverse, 1);
