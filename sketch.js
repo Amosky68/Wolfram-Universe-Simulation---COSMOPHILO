@@ -337,7 +337,12 @@ class Graph {
         for (let i=0; i<distance-1; i++) {
           if (voisin.edges.length > 0) voisin = voisin.edges[Math.floor(Math.random() * voisin.edges.length)];
         }
-        node.SourceFields["charge+"] += 1; voisin.SourceFields["charge-"] += 1;
+        
+        node.SourceFields["charge+"] += 1;
+        let isAsymmetry = (selInitial.value() === 'Asymétrie Baryonique');
+        if (isAsymmetry && Math.random() > 0.01) {
+          voisin.SourceFields["charge-"] += 1;
+        } 
       }
     }
   }
@@ -351,7 +356,7 @@ class Graph {
     let cout_expansion;
 
     if (selInitial.value() === 'Big Rip') {
-       let facteur = 0.0003; 
+       let facteur = 0.0007; 
        expSpeed *= (1 + Math.pow(nb_nodes * facteur, 2));
        cout_expansion = (0.005 / expSpeed) * nb_nodes;
     } else {
@@ -456,6 +461,7 @@ function setupUI() {
   selInitial.option('Mort Thermique');
   selInitial.option('Univers Torique'); 
   selInitial.option('Big Rip'); 
+  selInitial.option('Asymétrie Baryonique');
   selInitial.selected('Big Bang');
   selInitial.parent(panel).style('display', 'flex').style('flex-direction', 'column').style('gap', '5px');
   
@@ -544,6 +550,14 @@ function applyPreset() {
     checkTorus.checked(false);
     sliderFluctuation.value(0.0005); 
     sliderDamping.value(0.95);
+  }
+  else if (choix === 'Asymétrie Baryonique') {
+    sliderInitialN.value(15); 
+    checkExpansion.checked(false); 
+    checkTorus.checked(false);
+    sliderFluctuation.value(0.02);
+    sliderAnnihilation.value(0.99); 
+    sliderDamping.value(0.90);
   }
 
   resetSlidersVisuals();
